@@ -1,10 +1,28 @@
-<<<<<<< HEAD
-# NEPHRA
-NEPHRA – A smart water bottle system with ESP32, copper tape sensor, and MPU6050, featuring mobile app integration, hydration tracking, and cloud AI analytics.
-=======
-# Firebase Studio
+# NEPHRA – Smart Hydration Bottle App
 
-This is a NextJS starter in Firebase Studio.
 
-To get started, take a look at src/app/page.tsx.
->>>>>>> ef5f6bc (Initialized workspace with Firebase Studio)
+NEPHRA is a next-generation smart bottle system designed to make hydration a habit.  
+This repository contains the **frontend prototype** of the NEPHRA mobile/web application built with **React / Next.js**.
+
+---
+
+## 📌 Features
+
+- **Live Water Level Tracking**  
+  Reads from 15-level copper tape sensor (via ESP32) for 50 mL accuracy.
+
+- **Tilt & Motion Detection**  
+  MPU6050 accelerometer/gyroscope to detect drinking, idle time, and refills.
+
+- **Daily Goal Tracking**  
+  AI-based recommendations for water intake goals based on user profile.
+
+- **In-Bottle Alerts**  
+  LED color changes to indicate reminders (no intrusive phone notifications).
+
+- **Cloud Sync**  
+  Stores full drinking history and preferences for analysis.
+
+- **Gamification (Demo)**  
+  Leaderboard mockup to demonstrate habit-building potential.
+
