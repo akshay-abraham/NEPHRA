@@ -109,7 +109,7 @@ const DeveloperOptions = () => {
         <Accordion type="single" collapsible className="w-full">
           {/* Real-time Bottle Data Section */}
           <AccordionItem value="item-1">
-            <AccordionTrigger>Real-time Bottle Data (Demo)</AccordionTrigger>
+            <AccordionTrigger>Real-time Bottle Data</AccordionTrigger>
             <AccordionContent className="space-y-4 font-mono text-xs">
               {/* This section shows the simulated sensor data. */}
               <div className="flex justify-between items-center p-2 bg-muted/50 rounded-md">
@@ -130,7 +130,7 @@ const DeveloperOptions = () => {
           </AccordionItem>
           {/* Event Log Section */}
           <AccordionItem value="item-2">
-            <AccordionTrigger>Event Log (Demo)</AccordionTrigger>
+            <AccordionTrigger>Event Log</AccordionTrigger>
             <AccordionContent>
               {/* `ScrollArea` makes the content inside it scrollable if it's too big. */}
               <ScrollArea className="h-48 w-full bg-muted/50 rounded-md p-2">
@@ -172,7 +172,7 @@ const DeveloperOptions = () => {
  */
 export default function ProfileClient() {
   // --- DATA ---
-  // For this demo, we're assuming the logged-in user is the first one in our mock data.
+  // For this app, we're assuming the logged-in user is the first one in our mock data.
   // In a real app, you would get the current user's ID from an authentication system.
   const user = leaderboardData[0];
   // Get the achievements for this specific user from our mock data.

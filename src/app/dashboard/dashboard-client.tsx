@@ -122,12 +122,12 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
     if (isConnected) {
       // 2. `setInterval` is a browser function that runs a piece of code repeatedly,
       // with a fixed time delay between each run. Here, we'll simulate a data update
-      // every 2 seconds (2000 milliseconds).
+      // every 3 seconds (3000 milliseconds) for a slower, more natural pace.
       const interval = setInterval(() => {
         
         // --- Simulate Drinking ---
         // 3. We generate a random amount of water the user "drank".
-        // This makes the demo feel alive and dynamic.
+        // This makes the simulation feel alive and dynamic.
         const drank = 50 * (Math.floor(Math.random() * 3) + 1); // Simulate drinking 50, 100, or 150 ml
         
         // 4. If the user "drank" some water, we update all the relevant stats.
@@ -159,12 +159,12 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
           setBottleLevel(lvl => Math.max(0, lvl - drank)); // `Math.max` ensures bottle level doesn't go below 0.
           setDrops(d => d + Math.floor(drank / 10)); // We grant some "drops" currency based on the amount drunk.
         }
-      }, 2000); // This happens every 2000ms (2 seconds).
+      }, 3000); // This happens every 3000ms (3 seconds).
 
       // 5. This interval simulates ambient temperature changes.
       const tempInterval = setInterval(() => {
         setTemperature(temp => temp + (Math.random() - 0.5)); // Fluctuate temperature slightly
-      }, 5000);
+      }, 7000); // This happens every 7000ms (7 seconds).
 
 
       // 6. This is the "cleanup" function. It's very important! It runs when the
@@ -269,7 +269,7 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
     // We show a toast notification to confirm that the bottle is connected.
     toast({ title: "NEPHRA Connected", description: "Ready to track your hydration." });
     
-    // We reset all the stats to their starting values for a fresh demo session.
+    // We reset all the stats to their starting values for a fresh session.
     setHydration({ current: 0, goal: 2500 });
     setBottleLevel(750);
     setTemperature(22.5);
@@ -325,7 +325,7 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
                 <Zap className="mr-2 h-4 w-4" /> Connect to NEPHRA
             </Button>
             <p className="text-sm text-muted-foreground mt-2">
-              Connect to start the demo simulation.
+              Connect to start the simulation.
             </p>
         </div>
        ) : (
