@@ -10,17 +10,13 @@ import Link from "next/link";
 import { User, Trophy, Bot, Code, Terminal, Activity, Droplet, Flame, Star, ShieldCheck, Info } from "lucide-react";
 // Custom UI components from our design system.
 import ProfileForm from "@/components/profile/profile-form";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 // Mock data for achievements and leaderboard. In a real app, this would come from a database.
 import { allAchievements, leaderboardData } from "@/lib/leaderboard-data";
-// Server Action to fetch AI-powered profile insights.
-import { getProfileInsightsAction } from "./actions";
-// TypeScript type definition for the AI insight data.
-import type { ProfileInsightsOutput } from "@/ai/schemas";
 // Utility function to calculate the user's gamified rank.
 import { getHydrationRank } from "@/lib/utils";
 
@@ -166,12 +162,6 @@ const DeveloperOptions = () => {
  * It manages the user's data, fetches AI insights, and displays all profile-related information.
  */
 export default function ProfileClient() {
-  // --- STATE MANAGEMENT ---
-  // Stores the AI-generated insight for the user's profile. Initialized to `null`.
-  const [insight, setInsight] = useState<ProfileInsightsOutput | null>(null);
-  // Manages the loading state while fetching the AI insight. This is useful for showing a "Loading..." message.
-  const [isLoadingInsight, setIsLoadingInsight] = useState(true);
-
   // --- DATA ---
   // For this demo, we're assuming the logged-in user is the first one in our mock data.
   // In a real app, you would get the current user's ID from an authentication system.
@@ -189,44 +179,6 @@ export default function ProfileClient() {
   // Get the user's current rank details (e.g., name, next rank, progress).
   const hydrationRank = getHydrationRank(user.level);
 
-  // --- SIDE EFFECTS (DATA FETCHING) ---
-  // This `useEffect` hook fetches the personalized AI insight when the component first loads.
-  useEffect(() => {
-    // 1. We define an `async` function inside the effect. This is the standard way to
-    // handle asynchronous operations (like API calls) inside `useEffect`.
-    async function fetchInsight() {
-      // 2. Set loading state to true to show a loading message on the screen.
-      setIsLoadingInsight(true);
-      // 3. Create mock historical data for the AI analysis. In a real app, this would be fetched from a database.
-      const mockHistoricalData = JSON.stringify([
-        { timestamp: '2024-07-28T08:00:00Z', amount: 250 },
-        { timestamp: '2024-07-29T09:30:00Z', amount: 300 },
-        { timestamp: '2024-07-30T08:30:00Z', amount: 200 },
-        { timestamp: '2024-07-30T15:00:00Z', amount: 150 },
-      ]);
-
-      // 4. Call the Server Action to get the AI insight. `await` pauses the function
-      // until the AI has finished its analysis and returned a result.
-      const result = await getProfileInsightsAction({
-        name: user.name,
-        level: user.level,
-        hydrationRank: hydrationRank.rank,
-        historicalData: mockHistoricalData,
-        healthConditions: "menstruation" // We add mock data for health to get more personalized results.
-      });
-
-      // 5. If the AI returns a valid result, update our component's state with it.
-      if (result) {
-        setInsight(result);
-      }
-      // 6. Set the loading state to false, which will hide the loading message.
-      setIsLoadingInsight(false);
-    }
-    // 7. Call the async function we just defined.
-    fetchInsight();
-    // The dependency array `[]` tells React to run this effect only once, when the component mounts.
-    // If we put variables in the array (e.g., `[user.id]`), the effect would re-run whenever those variables change.
-  }, [user.name, user.level, hydrationRank.rank]);
 
   // --- RENDER LOGIC ---
   return (
@@ -272,54 +224,57 @@ export default function ProfileClient() {
 
       <Separator />
 
-      {/* --- AI COACHING SECTION --- */}
-      <div>
-        <h2 className="text-lg font-headline font-semibold mb-2 flex items-center gap-2"><Bot className="h-5 w-5 text-primary" /> AI Hydration Coach</h2>
-        {/* Use a conditional (ternary) operator to show a loading message or the AI insight. */}
-        {isLoadingInsight ? (
-          <p className="text-sm text-muted-foreground">Analyzing your patterns...</p>
-        ) : (
-          <p className="text-sm italic text-muted-foreground">"{insight?.insight}"</p>
-        )}
-      </div>
-
       {/* --- PROFILE FORM --- */}
       {/* This component handles the user's personal details and AI goal generation. */}
       <ProfileForm />
 
       <Separator />
 
-      {/* --- ACHIEVEMENTS SECTION --- */}
-      <div className="pt-4">
-        <h2 className="text-xl font-headline font-bold text-center mb-2">Achievements</h2>
-        <div className="flex justify-center items-center gap-4 mb-4">
-          <Trophy className="h-5 w-5 text-yellow-500" />
-          <p className="text-muted-foreground">{achievedCount} / {achievements.length} Unlocked</p>
-        </div>
-        <Progress value={(achievedCount / achievements.length) * 100} className="h-2" />
+      {/* --- ACHIEVEMENTS & DEVELOPER SECTION in Accordion --- */}
+      <Accordion type="multiple" className="w-full space-y-4">
+        {/* Achievements Section */}
+        <AccordionItem value="achievements" className="border rounded-xl bg-gradient-to-tr from-card to-primary/5">
+          <AccordionTrigger className="p-4 hover:no-underline">
+            <div className="flex flex-col items-start">
+              <h2 className="text-lg font-headline font-semibold flex items-center gap-2"><Trophy className="h-5 w-5 text-primary" /> Achievements</h2>
+              <p className="text-sm text-muted-foreground">{achievedCount} / {achievements.length} Unlocked</p>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="p-4 pt-0">
+              <Progress value={(achievedCount / achievements.length) * 100} className="h-2 mb-6" />
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {/* We `map` over the achievements array to display each one in a card. */}
+                {achievements.map((ach, i) => (
+                  <Card key={i} className={`text-center transition-all duration-300 ${ach.achieved ? 'border-primary/50 bg-primary/10' : 'bg-card'}`}>
+                    <CardContent className="p-4 flex flex-col items-center justify-center h-full">
+                      <div className={`mx-auto h-12 w-12 rounded-full flex items-center justify-center mb-2 ${ach.achieved ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                        {/* The `ach.icon` is a component itself, so we can render it like this. */}
+                        <ach.icon className={`h-6 w-6 ${ach.achieved ? '' : 'text-muted-foreground'}`} />
+                      </div>
+                      <p className="font-semibold text-sm">{ach.title}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+          </AccordionContent>
+        </AccordionItem>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-6">
-          {/* We `map` over the achievements array to display each one in a card. */}
-          {achievements.map((ach, i) => (
-            <Card key={i} className={`text-center transition-all duration-300 ${ach.achieved ? 'border-primary/50 bg-primary/10' : 'bg-card'}`}>
-              <CardContent className="p-4 flex flex-col items-center justify-center h-full">
-                <div className={`mx-auto h-12 w-12 rounded-full flex items-center justify-center mb-2 ${ach.achieved ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
-                  {/* The `ach.icon` is a component itself, so we can render it like this. */}
-                  <ach.icon className={`h-6 w-6 ${ach.achieved ? '' : 'text-muted-foreground'}`} />
-                </div>
-                <p className="font-semibold text-sm">{ach.title}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
+        {/* Developer Options Section */}
+        <AccordionItem value="developer-options" className="border rounded-xl bg-gradient-to-tr from-card to-accent/5">
+            <AccordionTrigger className="p-4 hover:no-underline">
+                 <div className="flex flex-col items-start">
+                    <h2 className="text-lg font-headline font-semibold flex items-center gap-2"><Code className="h-5 w-5 text-accent" /> Developer Zone</h2>
+                    <p className="text-sm text-muted-foreground">App Philosophy & Tech</p>
+                 </div>
+            </AccordionTrigger>
+            <AccordionContent className="p-4 pt-0">
+              <DeveloperOptions />
+            </AccordionContent>
+        </AccordionItem>
+      </Accordion>
 
-      <Separator />
-
-      {/* --- FOOTER & DEVELOPER SECTION --- */}
-      <div className="text-center space-y-4 pt-4">
-        {/* The developer options component for displaying raw data. */}
-        <DeveloperOptions />
+      {/* --- FOOTER --- */}
+      <div className="text-center pt-4">
         {/* A link to the developer's website. `target="_blank"` opens it in a new tab. */}
         <Link href="https://linktr.ee/aletheion" target="_blank" className="text-xs text-muted-foreground hover:text-primary transition-colors">
           Designed by Aletheion Labs in India

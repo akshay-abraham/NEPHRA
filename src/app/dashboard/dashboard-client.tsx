@@ -18,10 +18,11 @@ import ProgressRing from '@/components/dashboard/progress-ring';
 import { useToast } from '@/hooks/use-toast';
 // This is a "type" definition from our AI schemas. It helps us make sure the data
 // for our AI's motivational messages is always in the correct format.
-import type { MotivationOutput } from '@/ai/schemas';
+import type { MotivationOutput, ProfileInsightsOutput } from '@/ai/schemas';
 // This is a helper function we wrote to calculate the user's "rank" based on their level.
 import { getHydrationRank } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { getProfileInsightsAction } from '../profile/actions';
 
 // --- COMPONENT PROPS DEFINITION ---
 // This is a "TypeScript interface". It's like a blueprint that defines what kind of
@@ -53,6 +54,10 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
   // This state holds the AI-generated motivational message. We initialize it with the
   // `initialMotivation` prop that was passed in from the server.
   const [motivation, setMotivation] = React.useState<MotivationOutput>(initialMotivation);
+  // Stores the AI-generated insight for the user's profile. Initialized to `null`.
+  const [insight, setInsight] = React.useState<ProfileInsightsOutput | null>(null);
+  // Manages the loading state while fetching the AI insight. This is useful for showing a "Loading..." message.
+  const [isLoadingInsight, setIsLoadingInsight] = React.useState(true);
   
   // --- GAMIFICATION STATE ---
   // These state variables manage the "game" elements of our app, like levels and points.
@@ -162,6 +167,44 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
     }
     // This effect depends on `levelUpInfo` and the `toast` function.
   }, [levelUpInfo, toast]);
+
+    // This `useEffect` hook fetches the personalized AI insight when the component first loads.
+    React.useEffect(() => {
+      // 1. We define an `async` function inside the effect. This is the standard way to
+      // handle asynchronous operations (like API calls) inside `useEffect`.
+      async function fetchInsight() {
+        // 2. Set loading state to true to show a loading message on the screen.
+        setIsLoadingInsight(true);
+        // 3. Create mock historical data for the AI analysis. In a real app, this would be fetched from a database.
+        const mockHistoricalData = JSON.stringify([
+          { timestamp: '2024-07-28T08:00:00Z', amount: 250 },
+          { timestamp: '2024-07-29T09:30:00Z', amount: 300 },
+          { timestamp: '2024-07-30T08:30:00Z', amount: 200 },
+          { timestamp: '2024-07-30T15:00:00Z', amount: 150 },
+        ]);
+  
+        // 4. Call the Server Action to get the AI insight. `await` pauses the function
+        // until the AI has finished its analysis and returned a result.
+        const result = await getProfileInsightsAction({
+          name: "Joan Clarke",
+          level: level,
+          hydrationRank: hydrationRank.rank,
+          historicalData: mockHistoricalData,
+          healthConditions: "menstruation" // We add mock data for health to get more personalized results.
+        });
+  
+        // 5. If the AI returns a valid result, update our component's state with it.
+        if (result) {
+          setInsight(result);
+        }
+        // 6. Set the loading state to false, which will hide the loading message.
+        setIsLoadingInsight(false);
+      }
+      // 7. Call the async function we just defined.
+      fetchInsight();
+      // The dependency array `[]` tells React to run this effect only once, when the component mounts.
+      // If we put variables in the array (e.g., `[user.id]`), the effect would re-run whenever those variables change.
+    }, [level, hydrationRank.rank]);
 
 
   // --- EVENT HANDLERS ---
@@ -281,6 +324,20 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
             </div>
 
             <Separator />
+            
+            {/* --- AI COACHING SECTION --- */}
+            <div>
+              <h2 className="text-lg font-headline font-semibold mb-2 flex items-center gap-2"><Bot className="h-5 w-5 text-primary" /> AI Hydration Coach</h2>
+              {/* Use a conditional (ternary) operator to show a loading message or the AI insight. */}
+              {isLoadingInsight ? (
+                <p className="text-sm text-muted-foreground">Analyzing your patterns...</p>
+              ) : (
+                <p className="text-sm italic text-muted-foreground">"{insight?.insight}"</p>
+              )}
+            </div>
+
+            <Separator />
+
 
             {/* --- Weekly Quests Section --- */}
             <div className="space-y-4">

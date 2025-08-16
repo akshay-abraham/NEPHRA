@@ -9,7 +9,7 @@ import { z } from "zod";
 import { hydrationRecommendations } from "@/ai/flows/hydration-recommendations";
 import { getProfileInsights } from "@/ai/flows/profile-insights-flow";
 // Import the Zod schemas for validation.
-import { ProfileSchema, ProfileInsightsInputSchema } from "@/ai/schemas";
+import { ProfileSchema, ProfileInsightsInputSchema, type ProfileInsightsOutput } from "@/ai/schemas";
 
 /**
  * A Server Action to get a personalized hydration recommendation from the AI.
@@ -52,11 +52,11 @@ export async function getHydrationRecommendationAction(
 /**
  * A Server Action to get a personalized insight about the user's profile from the AI.
  * @param {z.infer<typeof ProfileInsightsInputSchema>} data - The user's profile and historical data.
- * @returns {Promise<object | null>} The AI's insight or null if an error occurs.
+ * @returns {Promise<ProfileInsightsOutput | null>} The AI's insight or null if an error occurs.
  */
 export async function getProfileInsightsAction(
   data: z.infer<typeof ProfileInsightsInputSchema>
-) {
+): Promise<ProfileInsightsOutput | null> {
   try {
     // 1. Validate the incoming data against the ProfileInsightsInputSchema.
     const validatedData = ProfileInsightsInputSchema.parse(data);
