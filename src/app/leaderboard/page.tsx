@@ -14,6 +14,7 @@ import { Crown, Trophy, Droplets, Star } from "lucide-react";
 import { leaderboardData } from "@/lib/leaderboard-data";
 // Import a utility function to combine CSS classes.
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 /**
  * The main component for the Leaderboard page.
@@ -46,7 +47,9 @@ export default function LeaderboardPage() {
                         <TableRow key={user.id} className={cn(
                             "border-0",
                             // Add a special background style for the top 3 users to make them stand out.
-                            index < 3 && "bg-primary/5"
+                            index < 3 && "bg-primary/5",
+                             // Highlight the current user's row
+                            user.id === 1 && "bg-primary/10"
                         )}>
                             {/* Rank Cell */}
                             <TableCell className="font-bold text-xl text-center text-muted-foreground w-12">
@@ -64,11 +67,10 @@ export default function LeaderboardPage() {
                                         <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                                     </Avatar>
                                     {/* User Name and Level */}
-                                    <div>
+                                    <div className="flex items-center gap-2">
                                         <p className="font-semibold">{user.name}</p>
-                                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                            <span className="flex items-center gap-1"><Star className="h-3 w-3 text-yellow-500" /> Lvl {user.level}</span>
-                                        </div>
+                                        {/* If this is the current user (id: 1), show a "You" badge. */}
+                                        {user.id === 1 && <Badge variant="secondary">You</Badge>}
                                     </div>
                                 </div>
                             </TableCell>

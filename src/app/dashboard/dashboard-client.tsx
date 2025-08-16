@@ -21,6 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { MotivationOutput } from '@/ai/schemas';
 // This is a helper function we wrote to calculate the user's "rank" based on their level.
 import { getHydrationRank } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 // --- COMPONENT PROPS DEFINITION ---
 // This is a "TypeScript interface". It's like a blueprint that defines what kind of
@@ -206,7 +207,10 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
     <div className="p-4 space-y-6">
       {/* --- HEADER --- */}
       <header className="flex justify-between items-center">
-        <h1 className="text-xl font-bold font-headline">Dashboard</h1>
+        <div>
+            <h1 className="text-2xl font-bold font-headline">Joan Clarke's</h1>
+            <p className="text-muted-foreground">Dashboard</p>
+        </div>
         {/* This is the little dot that shows if the bottle is connected. */}
         <div className="flex items-center gap-2">
             {/* The dot has a green or red color and a pulsing animation. */}
