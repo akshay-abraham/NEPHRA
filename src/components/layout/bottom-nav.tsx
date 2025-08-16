@@ -38,6 +38,7 @@ export default function BottomNav() {
           
           return (
             // Use the Next.js `Link` component for fast, client-side navigation.
+            // The styles and logic are applied directly to the Link component.
             <Link
               key={item.href}
               href={item.href}
