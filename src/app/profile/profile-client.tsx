@@ -233,7 +233,7 @@ export default function ProfileClient() {
     <div className="p-4 space-y-8">
       {/* --- HEADER --- */}
       <header className="mb-2 text-center">
-        <h1 className="text-2xl font-headline font-bold mt-4">Your Profile</h1>
+        <h1 className="text-2xl font-headline font-bold mt-4">{user.name}</h1>
         <p className="text-muted-foreground">Update your details and view your progress.</p>
       </header>
       
