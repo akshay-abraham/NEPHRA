@@ -56,6 +56,7 @@ export const ProfileInsightsInputSchema = z.object({
     hydrationRank: z.string().describe("The user's current hydration rank (e.g., 'Scout', 'Hydro-Hero')."),
     historicalData: z.string().describe('A JSON string of historical hydration data.'),
     healthConditions: z.string().optional().describe('Any health conditions the user has reported.'),
+    temperatureLog: z.string().describe('A JSON string of recent ambient temperature readings from the MPU6050 sensor.'),
 });
 export type ProfileInsightsInput = z.infer<typeof ProfileInsightsInputSchema>;
 

@@ -38,10 +38,14 @@ Health Conditions: {{#if healthConditions}} {{{healthConditions}}} {{else}} None
 Analyze their historical hydration data to find a pattern. The data is a JSON string of drinking events.
 Historical Data: {{{historicalData}}}
 
-Based on this data, provide one insightful tip. For example:
+Also consider the recent ambient temperature readings from the MPU6050 sensor.
+Temperature Log: {{{temperatureLog}}}
+
+Based on ALL this data, provide one insightful tip. For example:
 - If they drink a lot in the morning but little in the afternoon, suggest an afternoon reminder.
 - If they consistently miss their goal by a small amount, suggest a specific small increase.
 - If they report a health condition, gently tie the advice to it.
+- If the temperature has been high, suggest drinking more water, or perhaps a cooler beverage.
 - Keep the tone positive and encouraging. Address the user by name.
 `,
   // Configuration for the AI model, including safety settings.

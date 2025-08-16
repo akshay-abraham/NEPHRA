@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 // Component for client-side navigation without full page reloads.
 import Link from "next/link";
 // Icons from the lucide-react library for a consistent visual style.
-import { User, Trophy, Bot, Code, Terminal, Activity, Droplet, Flame, Star, ShieldCheck, Info } from "lucide-react";
+import { User, Trophy, Bot, Code, Terminal, Activity, Droplet, Flame, Star, ShieldCheck, Info, Thermometer } from "lucide-react";
 // Custom UI components from our design system.
 import ProfileForm from "@/components/profile/profile-form";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -35,6 +35,8 @@ const DeveloperOptions = () => {
 
   // Stores the simulated water level from the bottle's sensor.
   const [waterLevel, setWaterLevel] = useState(0);
+   // Stores the simulated atmospheric temperature from the MPU6050 sensor.
+  const [temperature, setTemperature] = useState(0);
   // Stores the simulated X, Y, Z position from the MPU6050 accelerometer.
   const [position, setPosition] = useState({ x: 0, y: 0, z: 0 });
   // Stores a log of simulated events from the bottle (e.g., "DRINK_DETECTED").
@@ -52,6 +54,15 @@ const DeveloperOptions = () => {
     const waterLevelInterval = setInterval(() => {
       setWaterLevel(Math.random() * 750); // Set a new random level between 0 and 750.
     }, 500);
+
+    // Simulate temperature changes every 3 seconds.
+    const temperatureInterval = setInterval(() => {
+        // Simulate a temperature reading between 18 and 28 degrees Celsius.
+        const newTemp = 18 + Math.random() * 10;
+        setTemperature(newTemp);
+        // Add the new temperature reading to the event log.
+        setEventLog(prev => [`[${new Date().toLocaleTimeString()}] TEMP_READING temp:${newTemp.toFixed(1)}°C`, ...prev].slice(0, 50));
+    }, 3000);
 
     // Simulate accelerometer data changes every 10 milliseconds for a "real-time" feel.
     const positionInterval = setInterval(() => {
@@ -86,6 +97,7 @@ const DeveloperOptions = () => {
       clearInterval(waterLevelInterval);
       clearInterval(positionInterval);
       clearInterval(eventLogInterval);
+      clearInterval(temperatureInterval);
     };
   }, []); // The empty array `[]` as the second argument means this effect will only run ONCE when the component first mounts.
 
@@ -109,6 +121,10 @@ const DeveloperOptions = () => {
               <div className="flex justify-between items-center p-2 bg-muted/50 rounded-md">
                 <p className="flex items-center gap-2"><Droplet className="h-4 w-4 text-primary" /> Water Level:</p>
                 <p>{waterLevel.toFixed(2)} mL</p>
+              </div>
+              <div className="flex justify-between items-center p-2 bg-muted/50 rounded-md">
+                <p className="flex items-center gap-2"><Thermometer className="h-4 w-4 text-primary" /> Ambient Temp:</p>
+                <p>{temperature.toFixed(2)} °C</p>
               </div>
               <div className="p-2 bg-muted/50 rounded-md">
                 <p className="flex items-center gap-2 mb-2"><Activity className="h-4 w-4 text-primary" /> MPU6050 Accelerometer:</p>

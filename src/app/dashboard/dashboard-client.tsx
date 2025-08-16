@@ -183,24 +183,33 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
           { timestamp: '2024-07-30T15:00:00Z', amount: 150 },
         ]);
   
-        // 4. Call the Server Action to get the AI insight. `await` pauses the function
+        // 4. Create mock temperature data.
+        const mockTemperatureLog = JSON.stringify([
+            { timestamp: '2024-07-30T08:00:00Z', temp: 22.5 },
+            { timestamp: '2024-07-30T12:00:00Z', temp: 24.1 },
+            { timestamp: '2024-07-30T16:00:00Z', temp: 23.8 },
+        ]);
+
+
+        // 5. Call the Server Action to get the AI insight. `await` pauses the function
         // until the AI has finished its analysis and returned a result.
         const result = await getProfileInsightsAction({
           name: "Joan Clarke",
           level: level,
           hydrationRank: hydrationRank.rank,
           historicalData: mockHistoricalData,
-          healthConditions: "menstruation" // We add mock data for health to get more personalized results.
+          healthConditions: "menstruation", // We add mock data for health to get more personalized results.
+          temperatureLog: mockTemperatureLog,
         });
   
-        // 5. If the AI returns a valid result, update our component's state with it.
+        // 6. If the AI returns a valid result, update our component's state with it.
         if (result) {
           setInsight(result);
         }
-        // 6. Set the loading state to false, which will hide the loading message.
+        // 7. Set the loading state to false, which will hide the loading message.
         setIsLoadingInsight(false);
       }
-      // 7. Call the async function we just defined.
+      // 8. Call the async function we just defined.
       fetchInsight();
       // The dependency array `[]` tells React to run this effect only once, when the component mounts.
       // If we put variables in the array (e.g., `[user.id]`), the effect would re-run whenever those variables change.
@@ -268,7 +277,7 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
        {!isConnected ? (
         // If the bottle is NOT connected, we show a big "Connect" button.
         <div className="text-center pt-20">
-            <Button onClick={handleConnect} size="lg" className="w-full animate-pulse bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-lg">
+            <Button onClick={handleConnect} size="lg" className="w-full animate-pulse bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-lg hover:scale-105 transition-transform duration-300">
                 <Zap className="mr-2 h-4 w-4" /> Connect to NEPHRA
             </Button>
             <p className="text-sm text-muted-foreground mt-2">

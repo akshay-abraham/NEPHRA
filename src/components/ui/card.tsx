@@ -12,7 +12,7 @@ const Card = React.forwardRef<
     ref={ref}
     // `cn` combines the default card styles with any additional classes passed in `className`.
     className={cn(
-      "rounded-xl border bg-card text-card-foreground shadow-lg shadow-black/20",
+      "rounded-xl border bg-card text-card-foreground shadow-lg shadow-black/20 transition-all duration-300 ease-in-out hover:shadow-primary/20",
       className
     )}
     {...props}

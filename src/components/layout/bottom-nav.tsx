@@ -44,7 +44,7 @@ export default function BottomNav() {
               // The `cn` function conditionally applies classes.
               // If `isActive` is true, it adds "text-primary scale-110" for a highlighted effect.
               className={cn(
-                "flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground transition-all duration-300 hover:text-primary",
+                "flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground transition-all duration-300 ease-in-out hover:text-primary hover:scale-110",
                 isActive ? "text-primary scale-110" : "scale-100"
               )}
             >

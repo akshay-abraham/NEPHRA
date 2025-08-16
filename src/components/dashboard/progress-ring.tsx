@@ -43,7 +43,7 @@ const ProgressRing: React.FC<ProgressRingProps> = ({
   // --- RENDER LOGIC ---
   return (
     // The main container div. Its size is determined by the `size` prop.
-    <div className="relative" style={{ width: size, height: size }}>
+    <div className="relative group" style={{ width: size, height: size }}>
       {/* The SVG element that will contain our circles. */}
       <svg className="absolute top-0 left-0" width={size} height={size}>
          {/* Background Circle */}
@@ -81,10 +81,10 @@ const ProgressRing: React.FC<ProgressRingProps> = ({
       {/* --- Central Text Content --- */}
       {/* This div sits in the middle of the ring and displays the text information. */}
       <div
-        className="absolute inset-0 flex flex-col items-center justify-center transition-transform duration-500 hover:scale-105"
+        className="absolute inset-0 flex flex-col items-center justify-center transition-transform duration-500 group-hover:scale-105"
       >
         {/* The main percentage display. */}
-        <span className="text-5xl font-bold font-headline text-primary" style={{ textShadow: '0 0 10px hsl(var(--primary) / 0.5)' }}>
+        <span className="text-5xl font-bold font-headline text-primary transition-all duration-500 group-hover:drop-shadow-[0_0_10px_hsl(var(--primary))]">
           {Math.round(progress)}%
         </span>
         <span className="text-sm text-muted-foreground font-medium tracking-wider uppercase">Completed</span>
@@ -99,10 +99,7 @@ const ProgressRing: React.FC<ProgressRingProps> = ({
       {/* --- Inner Glow Effect --- */}
       {/* This div adds a subtle inner shadow to give the ring some depth. */}
       <div 
-        className="absolute inset-0 rounded-full pointer-events-none"
-        style={{
-            boxShadow: 'inset 0 0 20px hsl(var(--primary) / 0.2)',
-        }}
+        className="absolute inset-0 rounded-full pointer-events-none transition-all duration-500 group-hover:shadow-[inset_0_0_20px_hsl(var(--primary)/0.4)]"
       />
     </div>
   );
