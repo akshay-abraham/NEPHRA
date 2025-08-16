@@ -1,27 +1,45 @@
 {
+  // `compilerOptions` specifies how the TypeScript compiler should behave.
   "compilerOptions": {
+    // `target`: Set the JavaScript version for the output code. "ES2017" is a modern standard.
     "target": "ES2017",
+    // `lib`: Include a list of standard library definitions (e.g., "dom" for browser APIs).
     "lib": ["dom", "dom.iterable", "esnext"],
+    // `allowJs`: Allow JavaScript files to be compiled.
     "allowJs": true,
+    // `skipLibCheck`: Skip type checking of declaration files (`.d.ts`), which can speed up compilation.
     "skipLibCheck": true,
+    // `strict`: Enable all strict type-checking options. This helps catch errors early.
     "strict": true,
+    // `noEmit`: Do not output files from compilation. Next.js handles this itself.
     "noEmit": true,
+    // `esModuleInterop`: Enables compatibility with CommonJS modules.
     "esModuleInterop": true,
+    // `module`: Specify the module system. "esnext" uses the latest standard.
     "module": "esnext",
+    // `moduleResolution`: How the compiler looks up modules. "bundler" is recommended for modern tools like Next.js.
     "moduleResolution": "bundler",
+    // `resolveJsonModule`: Allow importing `.json` files.
     "resolveJsonModule": true,
+    // `isolatedModules`: Ensure each file can be safely compiled in isolation.
     "isolatedModules": true,
+    // `jsx`: Control how JSX is processed. "preserve" keeps the JSX for another tool (like Next.js) to handle.
     "jsx": "preserve",
+    // `incremental`: Enable incremental compilation to speed up subsequent builds.
     "incremental": true,
+    // `plugins`: Add plugins to enhance the development experience. `next` is essential for Next.js.
     "plugins": [
       {
         "name": "next"
       }
     ],
+    // `paths`: Create aliases for module paths. `@/*` allows us to import from `src/` easily.
     "paths": {
       "@/*": ["./src/*"]
     }
   },
+  // `include`: Specifies which files TypeScript should include in the compilation.
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  // `exclude`: Specifies which files to exclude from compilation.
   "exclude": ["node_modules"]
 }

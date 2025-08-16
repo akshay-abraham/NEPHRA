@@ -1,19 +1,32 @@
+// Import the `Config` type from Tailwind CSS for type safety.
 import type {Config} from 'tailwindcss';
 
+// This is the main configuration object for Tailwind CSS.
 export default {
+  // `darkMode: ['class']` enables dark mode based on a class on the `<html>` tag.
   darkMode: ['class'],
+  
+  // `content` tells Tailwind where to look for class names in your project files.
+  // It scans these files to generate only the necessary CSS, keeping the file size small.
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  
+  // The `theme` object is where you customize Tailwind's default design system.
   theme: {
+    // `extend` allows you to add new values to the theme without overwriting the defaults.
     extend: {
+      // Custom font families for consistent typography.
       fontFamily: {
-        body: ['Inter', 'sans-serif'],
-        headline: ['Inter', 'sans-serif'],
-        code: ['monospace'],
+        body: ['Roboto', 'sans-serif'], // For all main body text.
+        headline: ['Montserrat', 'sans-serif'], // For headings and important text.
+        code: ['monospace'], // For code snippets.
       },
+      
+      // Custom color palette using CSS variables defined in `globals.css`.
+      // This makes the theme easily configurable and consistent.
       colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
@@ -55,45 +68,36 @@ export default {
           '4': 'hsl(var(--chart-4))',
           '5': 'hsl(var(--chart-5))',
         },
-        sidebar: {
-          DEFAULT: 'hsl(var(--sidebar-background))',
-          foreground: 'hsl(var(--sidebar-foreground))',
-          primary: 'hsl(var(--sidebar-primary))',
-          'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-          accent: 'hsl(var(--sidebar-accent))',
-          'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-          border: 'hsl(var(--sidebar-border))',
-          ring: 'hsl(var(--sidebar-ring))',
-        },
       },
+      
+      // Custom border radius values, based on the `--radius` CSS variable.
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
+      
+      // Custom keyframe animations for things like accordions.
       keyframes: {
         'accordion-down': {
-          from: {
-            height: '0',
-          },
-          to: {
-            height: 'var(--radix-accordion-content-height)',
-          },
+          from: { height: '0' },
+          to: { height: 'var(--radix-accordion-content-height)' },
         },
         'accordion-up': {
-          from: {
-            height: 'var(--radix-accordion-content-height)',
-          },
-          to: {
-            height: '0',
-          },
+          from: { height: 'var(--radix-accordion-content-height)' },
+          to: { height: '0' },
         },
       },
+      
+      // Assigning the keyframes to animation utility classes.
       animation: {
-        'accordion-down': 'accordion-down 0.2s ease-out',
-        'accordion-up': 'accordion-up 0.2s ease-out',
+        'accordion-down': 'accordion-down 0.3s ease-out',
+        'accordion-up': 'accordion-up 0.3s ease-out',
       },
     },
   },
+  
+  // `plugins` allow you to add extra functionality to Tailwind, like new utility classes.
+  // `tailwindcss-animate` adds classes for enter/exit animations.
   plugins: [require('tailwindcss-animate')],
 } satisfies Config;

@@ -1,88 +1,132 @@
+/* --- TAILWIND DIRECTIVES --- */
+/* These are special instructions for Tailwind CSS. */
+
+/* `@tailwind base;` injects Tailwind's base styles, a reset for cross-browser consistency. */
 @tailwind base;
+/* `@tailwind components;` injects Tailwind's component classes. */
 @tailwind components;
+/* `@tailwind utilities;` injects Tailwind's utility classes (like `p-4`, `flex`, etc.). */
 @tailwind utilities;
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
-}
-
+/* --- CSS VARIABLES DEFINITION --- */
+/* This `@layer` block allows us to define custom base styles. */
 @layer base {
+  /* `:root` defines CSS variables that can be used throughout the app. */
+  /* This is the default theme (used for light mode, but our app is dark-only). */
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-  .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
+    /* Color Palette using HSL (Hue, Saturation, Lightness) for easy theming. */
+    
+    /* Background colors */
+    --background: 0 0% 8%; /* Very dark gray, almost black. */
+    --foreground: 0 0% 98%; /* Almost white, for text. */
+    
+    /* Card colors (for elements that look like cards) */
+    --card: 240 6% 12%; /* Slightly lighter dark gray. */
+    --card-foreground: 0 0% 98%; /* Text on cards. */
+
+    /* Popover colors (for pop-up elements) */
+    --popover: 240 5.9% 10%;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
+
+    /* Primary color (main interactive color, e.g., buttons) */
+    --primary: 210 100% 55%; /* A vibrant, bright blue. */
+    --primary-foreground: 0 0% 98%; /* Text on primary-colored elements. */
+
+    /* Secondary color (less important interactive elements) */
+    --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
+
+    /* Muted color (for subtle text and backgrounds) */
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+
+    /* Accent color (for highlights and secondary actions) */
+    --accent: 17 93% 55%; /* A desaturated, deep orange. */
+    --accent-foreground: 0 0% 10%; /* Text on accent-colored elements. */
+
+    /* Destructive color (for error states or delete actions) */
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
+
+    /* Border and Input colors */
+    --border: 240 3.7% 20%; /* For borders around elements. */
+    --input: 240 3.7% 15.9%; /* Background for input fields. */
+    --ring: 210 90% 60%; /* Color for focus rings (accessibility). */
+
+    /* Chart colors (a predefined palette for charts) */
+    --chart-1: 210 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Border Radius (for rounded corners) */
+    --radius: 0.8rem; /* A larger radius for a softer, modern look. */
+  }
+
+  /* The `.dark` class is applied to the `<html>` tag to enable dark mode. */
+  /* We redefine the variables here for our dark theme. */
+  .dark {
+    /* Background colors */
+    --background: 224 71% 4%; /* A very deep, dark blue for the main background. */
+    --foreground: 210 40% 98%; /* White text. */
+    
+    /* Card colors */
+    --card: 240 6% 12%; /* Slightly lighter dark gray. */
+    --card-foreground: 210 40% 98%;
+    
+    /* Popover colors */
+    --popover: 224 71% 4%;
+    --popover-foreground: 210 40% 98%;
+    
+    /* Primary color */
+    --primary: 210 100% 55%; /* A vibrant, energetic blue. */
+    --primary-foreground: 210 40% 98%;
+    
+    /* Secondary color */
+    --secondary: 217 33% 25%;
+    --secondary-foreground: 210 40% 98%;
+    
+    /* Muted color */
+    --muted: 217 33% 25%;
+    --muted-foreground: 215 20% 65%;
+    
+    /* Accent color */
+    --accent: 35 100% 58%; /* A bright, "sunshine" orange for high contrast. */
+    --accent-foreground: 0 0% 10%; /* Dark text for the bright accent color. */
+    
+    /* Destructive color */
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+    
+    /* Border and Input colors */
+    --border: 240 3.7% 20%;
+    --input: 217 33% 25%;
+    --ring: 210 90% 60%;
+
+    /* Chart colors */
+    --chart-1: 210 85% 60%;
+    --chart-2: 160 90% 56%;
+    --chart-3: 30 90% 56%;
+    --chart-4: 280 90% 56%;
+    --chart-5: 340 90% 56%;
+
+    /* Border Radius */
+    --radius: 0.8rem;
   }
 }
 
+/* --- GLOBAL STYLES --- */
+/* This `@layer` applies some default styles to all elements. */
 @layer base {
+  /* The universal selector `*` applies this style to every element. */
   * {
+    /* Set the default border color for all elements to use our custom border variable. */
     @apply border-border;
   }
+  /* Apply default styles to the `<body>` tag. */
   body {
+    /* Set the background and text color for the entire app. */
     @apply bg-background text-foreground;
   }
 }
