@@ -309,8 +309,8 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
         </div>
         {/* This is the little dot that shows if the bottle is connected. */}
         <div className="flex items-center gap-2">
-            {/* The dot has a green or red color and a pulsing animation. */}
-            <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
+            {/* The dot has a green or red color. */}
+            <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
             <span className="text-sm text-muted-foreground">{isConnected ? "Connected" : "Disconnected"}</span>
         </div>
       </header>

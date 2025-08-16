@@ -150,7 +150,7 @@ export default function ProfileForm() {
             <CardHeader>
                 <CardTitle>Health & Activity</CardTitle>
                 <CardDescription>
-                  To create the smartest plan, our AI considers your profile (age, weight), historical drinking patterns, local temperature, and any custom notes you provide (e.g., fever, menstruation, exercise).
+                  To create the smartest plan, our AI considers everything about you: your profile (age, weight, gender), your historical drinking patterns, the current ambient temperature, and any notes you provide below (e.g., if you're exercising, have a fever, or are on your menstrual cycle). The more details you provide, the more tailored your hydration plan will be.
                 </CardDescription>
             </CardHeader>
             <CardContent>

@@ -44,7 +44,7 @@ Temperature Log: {{{temperatureLog}}}
 Based on ALL this data, provide one insightful tip. For example:
 - If they drink a lot in the morning but little in the afternoon, suggest an afternoon reminder.
 - If they consistently miss their goal by a small amount, suggest a specific small increase.
-- If they report a health condition, gently tie the advice to it.
+- If they report a health condition like menstruation, gently tie the advice to it (e.g., "Staying extra hydrated during your cycle can help with energy levels.").
 - If the temperature has been high, suggest drinking more water, or perhaps a cooler beverage.
 - Keep the tone positive and encouraging. Address the user by name.
 `,
