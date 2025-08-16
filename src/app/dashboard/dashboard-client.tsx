@@ -7,7 +7,7 @@
 // We import the tools we need from React, which is the library we use to build the UI.
 import React from 'react';
 // We import icons from a library called `lucide-react` to make our app look nice.
-import { RefreshCw, Zap, Droplets, Flame, Bot, ShieldCheck } from 'lucide-react';
+import { RefreshCw, Zap, Droplets, Flame, Bot, ShieldCheck, Thermometer, Wand2 } from 'lucide-react';
 // We import our own custom UI components that we've built for this app.
 // This keeps our app's style consistent.
 import { Button } from '@/components/ui/button';
@@ -21,8 +21,9 @@ import { useToast } from '@/hooks/use-toast';
 import type { MotivationOutput, ProfileInsightsOutput } from '@/ai/schemas';
 // This is a helper function we wrote to calculate the user's "rank" based on their level.
 import { getHydrationRank } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
 import { getProfileInsightsAction } from '../profile/actions';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import Link from 'next/link';
 
 // --- COMPONENT PROPS DEFINITION ---
 // This is a "TypeScript interface". It's like a blueprint that defines what kind of
@@ -31,6 +32,18 @@ interface DashboardClientProps {
   // `initialMotivation` is the first message the AI gives us when the app loads.
   initialMotivation: MotivationOutput;
 }
+
+// These are the fun loading messages for the AI, like in Minecraft.
+const funLoadingMessages = [
+    "Analyzing your unique sipping style...",
+    "Consulting the hydro-archives for patterns...",
+    "Calibrating the AI based on today's temperature...",
+    "Decoding your drinking habits...",
+    "Reviewing your event log for clues...",
+    "Personalizing your hydration journey...",
+    "Finding the perfect water-to-you ratio...",
+];
+
 
 /**
  * This is the main component for our Dashboard page. It's called "DashboardClient"
@@ -49,6 +62,8 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
   const [hydration, setHydration] = React.useState({ current: 0, goal: 2500 });
   // This state tracks the current water level in the smart bottle (max 750ml).
   const [bottleLevel, setBottleLevel] = React.useState(750);
+  // This state tracks the simulated ambient temperature.
+  const [temperature, setTemperature] = React.useState(22.5);
   // This state stores the user's "streak" (how many days in a row they've met their goal).
   const [streak, setStreak] = React.useState(0);
   // This state holds the AI-generated motivational message. We initialize it with the
@@ -58,6 +73,8 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
   const [insight, setInsight] = React.useState<ProfileInsightsOutput | null>(null);
   // Manages the loading state while fetching the AI insight. This is useful for showing a "Loading..." message.
   const [isLoadingInsight, setIsLoadingInsight] = React.useState(true);
+  // This state will hold the current fun loading message for the AI.
+  const [loadingMessage, setLoadingMessage] = React.useState(funLoadingMessages[0]);
   
   // --- GAMIFICATION STATE ---
   // These state variables manage the "game" elements of our app, like levels and points.
@@ -144,11 +161,20 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
         }
       }, 2000); // This happens every 2000ms (2 seconds).
 
+      // 5. This interval simulates ambient temperature changes.
+      const tempInterval = setInterval(() => {
+        setTemperature(temp => temp + (Math.random() - 0.5)); // Fluctuate temperature slightly
+      }, 5000);
+
+
       // 6. This is the "cleanup" function. It's very important! It runs when the
       // component is removed from the screen or when the values in the dependency array change.
       // Here, it stops the interval timer to prevent it from running forever in the background,
       // which would cause a "memory leak" and slow down the app.
-      return () => clearInterval(interval);
+      return () => {
+          clearInterval(interval);
+          clearInterval(tempInterval);
+      };
     }
     // The "dependency array" tells React when to re-run this effect.
     // The effect will run again if any of these values (`isConnected`, `xpToNextLevel`, `level`) change.
@@ -215,6 +241,23 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
       // If we put variables in the array (e.g., `[user.id]`), the effect would re-run whenever those variables change.
     }, [level, hydrationRank.rank]);
 
+  // This `useEffect` hook cycles through the fun loading messages for the AI.
+  React.useEffect(() => {
+    let messageIndex = 0;
+    // We only want this effect to run when the AI is currently loading.
+    if (isLoadingInsight) {
+        // Set an interval to change the message every 1.5 seconds.
+        const messageInterval = setInterval(() => {
+            messageIndex = (messageIndex + 1) % funLoadingMessages.length;
+            setLoadingMessage(funLoadingMessages[messageIndex]);
+        }, 1500);
+
+        // Cleanup function to clear the interval when the component unmounts
+        // or when `isLoadingInsight` becomes false.
+        return () => clearInterval(messageInterval);
+    }
+  }, [isLoadingInsight]);
+
 
   // --- EVENT HANDLERS ---
   // These are functions that we create to respond to user interactions, like button clicks.
@@ -229,6 +272,7 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
     // We reset all the stats to their starting values for a fresh demo session.
     setHydration({ current: 0, goal: 2500 });
     setBottleLevel(750);
+    setTemperature(22.5);
     setStreak(5); // Start with a sample streak to make it look good.
     setLevel(1);
     setXp(0);
@@ -260,7 +304,7 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
       {/* --- HEADER --- */}
       <header className="flex justify-between items-center">
         <div>
-            <h1 className="text-2xl font-bold font-headline">Joan Clarke's</h1>
+            <h1 className="text-4xl font-headline font-bold mt-4 bg-gradient-to-r from-primary to-accent text-transparent bg-clip-text">Joan Clarke's</h1>
             <p className="text-muted-foreground">Dashboard</p>
         </div>
         {/* This is the little dot that shows if the bottle is connected. */}
@@ -289,14 +333,14 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
         // If the bottle IS connected, we show the main dashboard content.
         <div className="space-y-6">
             {/* --- XP and Level Bar --- */}
-            <div className="space-y-2">
+            <div className="space-y-2 group">
                 <div className="flex justify-between items-center text-sm text-muted-foreground">
-                    <p>Level {level} ({hydrationRank.rank})</p>
+                    <p className="transition-colors duration-300 group-hover:text-primary">Level {level} ({hydrationRank.rank})</p>
                     {/* Display the user's "drops" currency. */}
-                    <p className="flex items-center gap-1"><Droplets className="h-4 w-4 text-primary"/>{drops}</p>
+                    <p className="flex items-center gap-1 transition-colors duration-300 group-hover:text-accent"><Droplets className="h-4 w-4 text-primary"/>{drops}</p>
                 </div>
                 {/* The progress bar shows how close the user is to the next level. */}
-                <Progress value={(xp / xpToNextLevel) * 100} className="h-3" />
+                <Progress value={(xp / xpToNextLevel) * 100} className="h-3 group-hover:shadow-[0_0_15px] group-hover:shadow-primary/50 transition-shadow duration-300" />
                  <p className="text-xs text-muted-foreground text-right">{xp} / {xpToNextLevel} XP</p>
             </div>
             
@@ -313,7 +357,7 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
             </div>
             
             {/* --- Quick Stats Panel --- */}
-            <div className="grid grid-cols-2 gap-2 text-center bg-card/50 p-3 rounded-xl">
+            <div className="grid grid-cols-3 gap-2 text-center bg-card/50 p-3 rounded-xl">
                 {/* Streak Counter */}
                 <div className="flex flex-col items-center justify-center">
                     <Flame className="h-7 w-7 text-accent mb-1"/>
@@ -330,6 +374,12 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
                     <p className="text-lg font-bold">{bottleLevel.toFixed(0)} <span className="text-sm">mL</span></p>
                     <p className="text-xs text-muted-foreground">Bottle</p>
                 </div>
+                {/* Ambient Temperature */}
+                <div className="flex flex-col items-center justify-center">
+                    <Thermometer className="h-7 w-7 text-orange-400 mb-1"/>
+                    <p className="text-lg font-bold">{temperature.toFixed(1)}<span className="text-sm">°C</span></p>
+                    <p className="text-xs text-muted-foreground">Ambient</p>
+                </div>
             </div>
 
             <Separator />
@@ -339,11 +389,33 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
               <h2 className="text-lg font-headline font-semibold mb-2 flex items-center gap-2"><Bot className="h-5 w-5 text-primary" /> AI Hydration Coach</h2>
               {/* Use a conditional (ternary) operator to show a loading message or the AI insight. */}
               {isLoadingInsight ? (
-                <p className="text-sm text-muted-foreground">Analyzing your patterns...</p>
+                <div className="text-sm text-center text-muted-foreground italic p-4 bg-muted/30 rounded-lg">
+                    <p>{loadingMessage}</p>
+                    <Progress value={Math.random() * 100} className="h-1 mt-3 transition-all duration-1000 ease-linear"/>
+                </div>
               ) : (
                 <p className="text-sm italic text-muted-foreground">"{insight?.insight}"</p>
               )}
             </div>
+            
+            {/* --- Update AI Goal Prompt --- */}
+            <Card className="bg-gradient-to-r from-primary/10 to-accent/10 border-primary/20 hover:border-primary/50 transition-all duration-300">
+                <CardHeader>
+                    <div className="flex items-center gap-3">
+                         <Wand2 className="h-8 w-8 text-primary" />
+                         <div>
+                            <h3 className="font-semibold font-headline">Refine Your Plan?</h3>
+                            <p className="text-xs text-muted-foreground">Update your profile to get a new AI-powered goal.</p>
+                         </div>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <Link href="/profile" passHref>
+                        <Button className="w-full">Update AI Goal</Button>
+                    </Link>
+                </CardContent>
+            </Card>
+
 
             <Separator />
 
@@ -360,10 +432,10 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
                         {/* We `map` over the `weeklyQuests` array to create a UI element for each quest. */}
                         {/* The `key` is important for React to keep track of each item in the list efficiently. */}
                         {weeklyQuests.map((quest) => (
-                            <div key={quest.id}>
+                            <div key={quest.id} className="group">
                                 <div className="flex justify-between items-center mb-1">
                                     <p className="text-sm font-semibold">{quest.title}</p>
-                                    <p className="text-sm font-medium flex items-center gap-1 text-accent">
+                                    <p className="text-sm font-medium flex items-center gap-1 text-accent transition-transform duration-300 group-hover:scale-110">
                                         <Droplets className="h-4 w-4" /> +{quest.reward}
                                     </p>
                                 </div>

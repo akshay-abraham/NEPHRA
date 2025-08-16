@@ -104,13 +104,7 @@ const DeveloperOptions = () => {
   // --- RENDER LOGIC ---
   // This is the JSX that defines what the component looks like.
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Code className="h-5 w-5 text-accent" /> Developer Options
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+    <div className="space-y-4">
         {/* An Accordion is a UI element that can be expanded or collapsed. */}
         <Accordion type="single" collapsible className="w-full">
           {/* Real-time Bottle Data Section */}
@@ -158,7 +152,7 @@ const DeveloperOptions = () => {
               </div>
                <div className="space-y-2">
                 <h4 className="font-semibold text-foreground flex items-center gap-2"><Bot className="h-4 w-4 text-primary" /> Hyper-Personalization with AI</h4>
-                <p>Our AI Hydration Coach goes beyond generic advice. It analyzes your personal data—profile, activity patterns, and even self-reported health conditions—to provide actionable, personalized insights and goals. This ensures the journey is tailored to you, making the goals more meaningful and achievable.</p>
+                <p>Our AI Hydration Coach goes beyond generic advice. It analyzes your personal data—profile, activity patterns, event logs, and even environmental factors like ambient temperature—to provide actionable, personalized insights and goals. This ensures the journey is tailored to you, making the goals more meaningful and achievable.</p>
               </div>
                <div className="space-y-2">
                 <h4 className="font-semibold text-foreground flex items-center gap-2"><Trophy className="h-4 w-4 text-primary" /> Social Motivation</h4>
@@ -167,8 +161,7 @@ const DeveloperOptions = () => {
             </AccordionContent>
           </AccordionItem>
         </Accordion>
-      </CardContent>
-    </Card>
+    </div>
   );
 };
 
@@ -261,11 +254,11 @@ export default function ProfileClient() {
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {/* We `map` over the achievements array to display each one in a card. */}
                 {achievements.map((ach, i) => (
-                  <Card key={i} className={`text-center transition-all duration-300 ${ach.achieved ? 'border-primary/50 bg-primary/10' : 'bg-card'}`}>
+                  <Card key={i} className={`text-center transition-all duration-300 group ${ach.achieved ? 'border-primary/50 bg-primary/10' : 'bg-card'}`}>
                     <CardContent className="p-4 flex flex-col items-center justify-center h-full">
-                      <div className={`mx-auto h-12 w-12 rounded-full flex items-center justify-center mb-2 ${ach.achieved ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                      <div className={`mx-auto h-12 w-12 rounded-full flex items-center justify-center mb-2 transition-all duration-300 group-hover:scale-110 ${ach.achieved ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
                         {/* The `ach.icon` is a component itself, so we can render it like this. */}
-                        <ach.icon className={`h-6 w-6 ${ach.achieved ? '' : 'text-muted-foreground'}`} />
+                        <ach.icon className={`h-6 w-6 transition-colors duration-300 ${ach.achieved ? '' : 'text-muted-foreground'}`} />
                       </div>
                       <p className="font-semibold text-sm">{ach.title}</p>
                     </CardContent>
