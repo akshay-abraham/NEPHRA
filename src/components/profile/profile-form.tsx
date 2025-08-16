@@ -148,8 +148,10 @@ export default function ProfileForm() {
            {/* --- Health Conditions Card --- */}
            <Card>
             <CardHeader>
-                <CardTitle>Health Conditions</CardTitle>
-                <CardDescription>Describe any conditions that might affect your hydration needs (e.g., fever, diabetes, menstruation). This helps us personalize your AI-powered hydration goals.</CardDescription>
+                <CardTitle>Health & Activity</CardTitle>
+                <CardDescription>
+                  To create the smartest plan, our AI considers your profile (age, weight), historical drinking patterns, local temperature, and any custom notes you provide (e.g., fever, menstruation, exercise).
+                </CardDescription>
             </CardHeader>
             <CardContent>
                 <FormField

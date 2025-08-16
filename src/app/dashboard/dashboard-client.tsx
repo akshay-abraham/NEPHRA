@@ -304,8 +304,8 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
       {/* --- HEADER --- */}
       <header className="flex justify-between items-center">
         <div>
-            <h1 className="text-4xl font-headline font-bold mt-4 bg-gradient-to-r from-primary to-accent text-transparent bg-clip-text">Joan Clarke's</h1>
-            <p className="text-muted-foreground">Dashboard</p>
+            <h1 className="text-2xl font-headline font-semibold">Welcome, Joan</h1>
+            <p className="text-sm text-muted-foreground">Here is your daily summary.</p>
         </div>
         {/* This is the little dot that shows if the bottle is connected. */}
         <div className="flex items-center gap-2">
@@ -321,7 +321,7 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
        {!isConnected ? (
         // If the bottle is NOT connected, we show a big "Connect" button.
         <div className="text-center pt-20">
-            <Button onClick={handleConnect} size="lg" className="w-full animate-pulse bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-lg hover:scale-105 transition-transform duration-300">
+            <Button onClick={handleConnect} size="lg" className="w-full bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-lg hover:scale-105 transition-transform duration-300">
                 <Zap className="mr-2 h-4 w-4" /> Connect to NEPHRA
             </Button>
             <p className="text-sm text-muted-foreground mt-2">
@@ -405,13 +405,13 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
                          <Wand2 className="h-8 w-8 text-primary" />
                          <div>
                             <h3 className="font-semibold font-headline">Refine Your Plan?</h3>
-                            <p className="text-xs text-muted-foreground">Update your profile to get a new AI-powered goal.</p>
+                            <p className="text-xs text-muted-foreground">Your AI goal is based on your profile, activity, history, and even the local temperature. Update your details for a smarter plan.</p>
                          </div>
                     </div>
                 </CardHeader>
                 <CardContent>
                     <Link href="/profile" passHref>
-                        <Button className="w-full">Update AI Goal</Button>
+                        <Button className="w-full">Update Profile & AI Goal</Button>
                     </Link>
                 </CardContent>
             </Card>
