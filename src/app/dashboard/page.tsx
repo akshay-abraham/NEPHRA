@@ -16,6 +16,7 @@ import type { MotivationInput, MotivationOutput } from "@/ai/schemas";
 /**
  * This asynchronous function fetches the initial motivational message from our AI.
  * It's called on the server when a user first visits the dashboard page.
+ * It now includes error handling to prevent crashes from API rate limits.
  * @returns {Promise<MotivationOutput>} A promise that resolves to the initial motivational message.
  */
 async function getInitialMotivation(): Promise<MotivationOutput> {
@@ -46,8 +47,8 @@ async function getInitialMotivation(): Promise<MotivationOutput> {
         // 4. Handle any errors that occur during the AI call.
         console.error("Error getting initial motivation:", error);
 
-        // If there's an error, we'll return a friendly, default message
-        // so the user doesn't see a broken page.
+        // If there's an error (like a 429 rate limit), we'll return a friendly, 
+        // default message so the user doesn't see a broken page.
         return {
             title: "Welcome Back!",
             message: "Let's get hydrated today and keep the streak alive! 💪💧"
