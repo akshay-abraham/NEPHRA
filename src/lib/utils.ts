@@ -43,31 +43,26 @@ export function getHydrationRank(level: number): { rank: string; nextRank: strin
     { level: 20, name: "Hydro-Hero" },
     { level: 25, name: "Aqua-Knight" },
     { level: 30, name: "Master" },
+    { level: 40, name: "Hydration Lord" },
+    { level: 50, name: "Poseidon's Chosen" }
   ];
 
-  // Initialize with the starting ranks as defaults.
+  // Find the highest rank the user has achieved.
   let currentRank = ranks[0];
-  let nextRank = ranks[1];
-
-  // Loop through the `ranks` array to find the user's current and next rank.
-  for (let i = 0; i < ranks.length; i++) {
-    // If the user's level is greater than or equal to the rank's required level...
-    if (level >= ranks[i].level) {
-      // ...then this is their current rank.
-      currentRank = ranks[i];
-      // Check if there's a next rank in the array.
-      if (i < ranks.length - 1) {
-        // If so, set the next rank.
-        nextRank = ranks[i + 1];
-      } else {
-        // If the user is at the highest rank, they have no "next" rank.
-        nextRank = ranks[i]; 
-      }
+  for (const rank of ranks) {
+    if (level >= rank.level) {
+      currentRank = rank;
+    } else {
+      break; 
     }
   }
-  
-  // If the user has reached the maximum rank, their progress is 100%.
-  if (currentRank.name === nextRank.name) {
+
+  // Find the next rank for the user.
+  const currentRankIndex = ranks.findIndex(r => r.name === currentRank.name);
+  const nextRank = ranks[currentRankIndex + 1];
+
+  // If the user is at the maximum rank, their progress is 100%.
+  if (!nextRank) {
     return { rank: currentRank.name, nextRank: "Max Rank", progress: 100 };
   }
 

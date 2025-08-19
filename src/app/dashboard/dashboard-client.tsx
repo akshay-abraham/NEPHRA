@@ -92,14 +92,6 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
   // to show notifications on the screen.
   const { toast } = useToast();
 
-  // A sample list of quests. In a real app, this would probably come from a database.
-  // We define it here to make the dashboard feel more complete.
-  const weeklyQuests = [
-    { id: 1, title: "The 3-Day Streak", description: "Maintain your streak for 3 days.", progress: 100, goal: 3, reward: 50 },
-    { id: 2, title: "Weekend Warrior", description: "Drink 5000ml over the weekend.", progress: 50, goal: 5000, reward: 100 },
-    { id: 3, title: "Perfect Start", description: "Hit your goal before noon.", progress: 0, goal: 1, reward: 75 },
-  ]
-
   // --- DERIVED STATE & UTILITIES ---
   // These are values that are calculated from our existing state variables.
   // We calculate them directly during rendering instead of storing them in state.
@@ -110,6 +102,13 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
   // Get the user's current rank details (like the rank name, e.g., "Scout") based on their level.
   const hydrationRank = getHydrationRank(level);
   
+  // A sample list of quests. Now with dynamic progress!
+  const weeklyQuests = [
+    { id: 1, title: "The 3-Day Streak", description: "Maintain your streak for 3 days.", current: streak, goal: 3, reward: 50 },
+    { id: 2, title: "Daily Goal", description: "Complete your hydration goal for today.", current: hydration.current, goal: hydration.goal, reward: 25 },
+    { id: 3, title: "Perfect Start", description: "Hit your goal before noon.", current: 0, goal: 1, reward: 75 },
+  ]
+
   // --- SIDE EFFECTS ---
   // The `useEffect` hook lets you perform "side effects" in components. Side effects are
   // operations that interact with the outside world, like timers, data fetching, or
@@ -439,7 +438,7 @@ export default function DashboardClient({ initialMotivation }: DashboardClientPr
                                         <Droplets className="h-4 w-4" /> +{quest.reward}
                                     </p>
                                 </div>
-                                <Progress value={quest.progress} className="h-2" />
+                                <Progress value={(quest.current / quest.goal) * 100} className="h-2" />
                                 <p className="text-xs text-muted-foreground mt-1">{quest.description}</p>
                             </div>
                         ))}
