@@ -1,0 +1,10 @@
+# This file contains settings to manage and configure a Firebase App Hosting backend.
+# For more information, see the official documentation:
+# https://firebase.google.com/docs/app-hosting/configure
+
+# The runConfig specifies the runtime settings for your application.
+runConfig:
+  # maxInstances sets the maximum number of server instances that can run at once.
+  # Increasing this value allows your app to handle more traffic automatically by
+  # spinning up more instances.
+  maxInstances: 1

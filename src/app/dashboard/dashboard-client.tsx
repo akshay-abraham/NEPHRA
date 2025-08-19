@@ -1,0 +1,459 @@
+// This special line tells Next.js that this file is a "Client Component".
+// This means it runs in the user's browser, which allows it to be interactive
+// and use features like state and event listeners (e.g., button clicks).
+"use client";
+
+// --- IMPORTS ---
+// We import the tools we need from React, which is the library we use to build the UI.
+import React from 'react';
+// We import icons from a library called `lucide-react` to make our app look nice.
+import { RefreshCw, Zap, Droplets, Flame, Bot, ShieldCheck, Thermometer, Wand2 } from 'lucide-react';
+// We import our own custom UI components that we've built for this app.
+// This keeps our app's style consistent.
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Separator } from '@/components/ui/separator';
+import ProgressRing from '@/components/dashboard/progress-ring';
+// This is a "custom hook" we wrote to easily show pop-up notifications (called "toasts").
+import { useToast } from '@/hooks/use-toast';
+// This is a "type" definition from our AI schemas. It helps us make sure the data
+// for our AI's motivational messages is always in the correct format.
+import type { MotivationOutput, ProfileInsightsOutput } from '@/ai/schemas';
+// This is a helper function we wrote to calculate the user's "rank" based on their level.
+import { getHydrationRank } from '@/lib/utils';
+import { getProfileInsightsAction } from '../profile/actions';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import Link from 'next/link';
+
+// --- COMPONENT PROPS DEFINITION ---
+// This is a "TypeScript interface". It's like a blueprint that defines what kind of
+// data (or "props") this component expects to receive from its parent.
+interface DashboardClientProps {
+  // `initialMotivation` is the first message the AI gives us when the app loads.
+  initialMotivation: MotivationOutput;
+}
+
+// These are the fun loading messages for the AI, like in Minecraft.
+const funLoadingMessages = [
+    "Analyzing your unique sipping style...",
+    "Consulting the hydro-archives for patterns...",
+    "Calibrating the AI based on today's temperature...",
+    "Decoding your drinking habits...",
+    "Reviewing your event log for clues...",
+    "Personalizing your hydration journey...",
+    "Finding the perfect water-to-you ratio...",
+];
+
+
+/**
+ * This is the main component for our Dashboard page. It's called "DashboardClient"
+ * because it's a Client Component. It manages all the changing data (state),
+ * handles user actions (like button clicks), and displays the user's daily progress.
+ */
+export default function DashboardClient({ initialMotivation }: DashboardClientProps) {
+  // --- STATE MANAGEMENT ---
+  // The `useState` hook is a special React function that lets you add a "state variable"
+  // to your component. Think of it as the component's internal memory. When a state
+  // variable changes, React automatically re-renders the component to show the new data.
+
+  // This state variable keeps track of whether the smart bottle is connected.
+  const [isConnected, setIsConnected] = React.useState(false);
+  // This state stores the user's daily hydration goal and how much they've drunk so far.
+  const [hydration, setHydration] = React.useState({ current: 0, goal: 2500 });
+  // This state tracks the current water level in the smart bottle (max 750ml).
+  const [bottleLevel, setBottleLevel] = React.useState(750);
+  // This state tracks the simulated ambient temperature.
+  const [temperature, setTemperature] = React.useState(22.5);
+  // This state stores the user's "streak" (how many days in a row they've met their goal).
+  const [streak, setStreak] = React.useState(0);
+  // This state holds the AI-generated motivational message. We initialize it with the
+  // `initialMotivation` prop that was passed in from the server.
+  const [motivation, setMotivation] = React.useState<MotivationOutput>(initialMotivation);
+  // Stores the AI-generated insight for the user's profile. Initialized to `null`.
+  const [insight, setInsight] = React.useState<ProfileInsightsOutput | null>(null);
+  // Manages the loading state while fetching the AI insight. This is useful for showing a "Loading..." message.
+  const [isLoadingInsight, setIsLoadingInsight] = React.useState(true);
+  // This state will hold the current fun loading message for the AI.
+  const [loadingMessage, setLoadingMessage] = React.useState(funLoadingMessages[0]);
+  
+  // --- GAMIFICATION STATE ---
+  // These state variables manage the "game" elements of our app, like levels and points.
+  const [level, setLevel] = React.useState(1); // The user's current level.
+  const [xp, setXp] = React.useState(0); // The user's current experience points.
+  const [drops, setDrops] = React.useState(0); // The in-game "money" the user earns.
+
+  // This state is a clever trick to safely show a "level up" notification.
+  // When a user levels up, we'll store the new level number here. A `useEffect` hook
+  // below will watch this variable and show the notification when it changes.
+  const [levelUpInfo, setLevelUpInfo] = React.useState<number | null>(null);
+
+  // --- HOOKS ---
+  // We use our custom `useToast` hook to get the `toast` function, which we can call
+  // to show notifications on the screen.
+  const { toast } = useToast();
+
+  // --- DERIVED STATE & UTILITIES ---
+  // These are values that are calculated from our existing state variables.
+  // We calculate them directly during rendering instead of storing them in state.
+  // This is more efficient and prevents our state from becoming messy or out of sync.
+
+  // Calculate the amount of XP needed to reach the next level. The formula is simple: level * 100.
+  const xpToNextLevel = level * 100;
+  // Get the user's current rank details (like the rank name, e.g., "Scout") based on their level.
+  const hydrationRank = getHydrationRank(level);
+  
+  // A sample list of quests. Now with dynamic progress!
+  const weeklyQuests = [
+    { id: 1, title: "The 3-Day Streak", description: "Maintain your streak for 3 days.", current: streak, goal: 3, reward: 50 },
+    { id: 2, title: "Daily Goal", description: "Complete your hydration goal for today.", current: hydration.current, goal: hydration.goal, reward: 25 },
+    { id: 3, title: "Perfect Start", description: "Hit your goal before noon.", current: 0, goal: 1, reward: 75 },
+  ]
+
+  // --- SIDE EFFECTS ---
+  // The `useEffect` hook lets you perform "side effects" in components. Side effects are
+  // operations that interact with the outside world, like timers, data fetching, or
+  // directly manipulating the browser's DOM.
+
+  // This `useEffect` hook simulates the smart bottle sending data to the app.
+  // It only runs when the bottle is connected (`isConnected` is true).
+  React.useEffect(() => {
+    // 1. Check if the bottle is "connected".
+    if (isConnected) {
+      // 2. `setInterval` is a browser function that runs a piece of code repeatedly,
+      // with a fixed time delay between each run. Here, we'll simulate a data update
+      // every 3 seconds (3000 milliseconds) for a slower, more natural pace.
+      const interval = setInterval(() => {
+        
+        // --- Simulate Drinking ---
+        // 3. We generate a random amount of water the user "drank".
+        // This makes the simulation feel alive and dynamic.
+        const drank = 50 * (Math.floor(Math.random() * 3) + 1); // Simulate drinking 50, 100, or 150 ml
+        
+        // 4. If the user "drank" some water, we update all the relevant stats.
+        if (drank > 0) {
+          // --- XP and Leveling Logic ---
+          // `setXp` can take a function. This is the safest way to update state
+          // that depends on the previous state.
+          setXp(currentXp => {
+            const newXp = currentXp + drank;
+            // Check if the user has earned enough XP to level up.
+            if (newXp >= xpToNextLevel) {
+              // If so, we update the level.
+              setLevel(prevLevel => {
+                const newLevel = prevLevel + 1;
+                // We store the new level in our special `levelUpInfo` state.
+                // This will trigger the other `useEffect` to show the notification.
+                setLevelUpInfo(newLevel); 
+                return newLevel;
+              });
+              // We reset the XP for the new level, carrying over any extra XP.
+              return newXp - xpToNextLevel; 
+            }
+            // If they didn't level up, we just return the new XP amount.
+            return newXp;
+          });
+          
+          // --- Update Hydration and Bottle State ---
+          setHydration(prev => ({ ...prev, current: Math.min(prev.current + drank, prev.goal) }));
+          setBottleLevel(lvl => Math.max(0, lvl - drank)); // `Math.max` ensures bottle level doesn't go below 0.
+          setDrops(d => d + Math.floor(drank / 10)); // We grant some "drops" currency based on the amount drunk.
+        }
+      }, 3000); // This happens every 3000ms (3 seconds).
+
+      // 5. This interval simulates ambient temperature changes.
+      const tempInterval = setInterval(() => {
+        setTemperature(temp => temp + (Math.random() - 0.5)); // Fluctuate temperature slightly
+      }, 7000); // This happens every 7000ms (7 seconds).
+
+
+      // 6. This is the "cleanup" function. It's very important! It runs when the
+      // component is removed from the screen or when the values in the dependency array change.
+      // Here, it stops the interval timer to prevent it from running forever in the background,
+      // which would cause a "memory leak" and slow down the app.
+      return () => {
+          clearInterval(interval);
+          clearInterval(tempInterval);
+      };
+    }
+    // The "dependency array" tells React when to re-run this effect.
+    // The effect will run again if any of these values (`isConnected`, `xpToNextLevel`, `level`) change.
+  }, [isConnected, xpToNextLevel, level]);
+
+  // This `useEffect` hook is dedicated to safely showing the "Level Up" notification.
+  // It runs *only* when the `levelUpInfo` state changes.
+  React.useEffect(() => {
+    // If `levelUpInfo` has a new level number (i.e., it's not null)...
+    if (levelUpInfo) {
+      // ...we call the `toast` function to show the notification.
+      toast({ title: "Level Up!", description: `Congratulations, you've reached level ${levelUpInfo}!` });
+      // After showing the toast, we reset the info back to `null`. This is crucial
+      // so the toast doesn't pop up again every time the component re-renders.
+      setLevelUpInfo(null);
+    }
+    // This effect depends on `levelUpInfo` and the `toast` function.
+  }, [levelUpInfo, toast]);
+
+    // This `useEffect` hook fetches the personalized AI insight when the component first loads.
+    React.useEffect(() => {
+      // 1. We define an `async` function inside the effect. This is the standard way to
+      // handle asynchronous operations (like API calls) inside `useEffect`.
+      async function fetchInsight() {
+        // 2. Set loading state to true to show a loading message on the screen.
+        setIsLoadingInsight(true);
+        // 3. Create mock historical data for the AI analysis. In a real app, this would be fetched from a database.
+        const mockHistoricalData = JSON.stringify([
+          { timestamp: '2024-07-28T08:00:00Z', amount: 250 },
+          { timestamp: '2024-07-29T09:30:00Z', amount: 300 },
+          { timestamp: '2024-07-30T08:30:00Z', amount: 200 },
+          { timestamp: '2024-07-30T15:00:00Z', amount: 150 },
+        ]);
+  
+        // 4. Create mock temperature data.
+        const mockTemperatureLog = JSON.stringify([
+            { timestamp: '2024-07-30T08:00:00Z', temp: 22.5 },
+            { timestamp: '2024-07-30T12:00:00Z', temp: 24.1 },
+            { timestamp: '2024-07-30T16:00:00Z', temp: 23.8 },
+        ]);
+
+
+        // 5. Call the Server Action to get the AI insight. `await` pauses the function
+        // until the AI has finished its analysis and returned a result.
+        const result = await getProfileInsightsAction({
+          name: "Joan Clarke",
+          level: level,
+          hydrationRank: hydrationRank.rank,
+          historicalData: mockHistoricalData,
+          healthConditions: "menstruation", // We add mock data for health to get more personalized results.
+          temperatureLog: mockTemperatureLog,
+        });
+  
+        // 6. If the AI returns a valid result, update our component's state with it.
+        if (result) {
+          setInsight(result);
+        }
+        // 7. Set the loading state to false, which will hide the loading message.
+        setIsLoadingInsight(false);
+      }
+      // 8. Call the async function we just defined.
+      fetchInsight();
+      // The dependency array `[]` tells React to run this effect only once, when the component mounts.
+      // If we put variables in the array (e.g., `[user.id]`), the effect would re-run whenever those variables change.
+    }, [level, hydrationRank.rank]);
+
+  // This `useEffect` hook cycles through the fun loading messages for the AI.
+  React.useEffect(() => {
+    let messageIndex = 0;
+    // We only want this effect to run when the AI is currently loading.
+    if (isLoadingInsight) {
+        // Set an interval to change the message every 1.5 seconds.
+        const messageInterval = setInterval(() => {
+            messageIndex = (messageIndex + 1) % funLoadingMessages.length;
+            setLoadingMessage(funLoadingMessages[messageIndex]);
+        }, 1500);
+
+        // Cleanup function to clear the interval when the component unmounts
+        // or when `isLoadingInsight` becomes false.
+        return () => clearInterval(messageInterval);
+    }
+  }, [isLoadingInsight]);
+
+
+  // --- EVENT HANDLERS ---
+  // These are functions that we create to respond to user interactions, like button clicks.
+
+  // This function handles the "Connect" button click.
+  const handleConnect = () => {
+    // We set the connection status to true.
+    setIsConnected(true);
+    // We show a toast notification to confirm that the bottle is connected.
+    toast({ title: "NEPHRA Connected", description: "Ready to track your hydration." });
+    
+    // We reset all the stats to their starting values for a fresh session.
+    setHydration({ current: 0, goal: 2500 });
+    setBottleLevel(750);
+    setTemperature(22.5);
+    setStreak(5); // Start with a sample streak to make it look good.
+    setLevel(1);
+    setXp(0);
+    setDrops(0);
+  };
+  
+  // This function handles the "Sync" button click.
+  const handleSync = () => {
+    // We show a "syncing" notification to give the user feedback.
+    toast({ title: "Syncing Data...", description: "Fetching latest events from your bottle." });
+    // We use `setTimeout` to simulate a delay, like a real network request.
+    setTimeout(() => {
+        // After 1.5 seconds, we show a "sync complete" notification.
+        toast({ title: "Sync Complete", description: "Your hydration data is up-to-date." });
+    }, 1500)
+  }
+
+  // --- RENDER LOGIC ---
+  // This is the part of the component that returns the JSX, which is the code
+  // that describes what the UI should look like.
+  
+  // Calculate the hydration progress as a percentage.
+  const progress = (hydration.current / hydration.goal) * 100;
+  // Calculate how much water the user has left to drink to meet their goal.
+  const waterRemaining = hydration.goal - hydration.current;
+
+  return (
+    <div className="p-4 space-y-6">
+      {/* --- HEADER --- */}
+      <header className="flex justify-between items-center">
+        <div>
+            <h1 className="text-2xl font-headline font-semibold">Welcome, Joan</h1>
+            <p className="text-sm text-muted-foreground">Here is your daily summary.</p>
+        </div>
+        {/* This is the little dot that shows if the bottle is connected. */}
+        <div className="flex items-center gap-2">
+            {/* The dot has a green or red color. */}
+            <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
+            <span className="text-sm text-muted-foreground">{isConnected ? "Connected" : "Disconnected"}</span>
+        </div>
+      </header>
+      
+       {/* --- DISCONNECTED VIEW --- */}
+       {/* We use a conditional (ternary) operator. It's a compact `if/else` statement. */}
+       {/* `!isConnected ? (show this) : (show that)` */}
+       {!isConnected ? (
+        // If the bottle is NOT connected, we show a big "Connect" button.
+        <div className="text-center pt-20">
+            <Button onClick={handleConnect} size="lg" className="w-full bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-lg hover:scale-105 transition-transform duration-300">
+                <Zap className="mr-2 h-4 w-4" /> Connect to NEPHRA
+            </Button>
+            <p className="text-sm text-muted-foreground mt-2">
+              Connect to start the simulation.
+            </p>
+        </div>
+       ) : (
+        // --- CONNECTED VIEW ---
+        // If the bottle IS connected, we show the main dashboard content.
+        <div className="space-y-6">
+            {/* --- XP and Level Bar --- */}
+            <div className="space-y-2 group">
+                <div className="flex justify-between items-center text-sm text-muted-foreground">
+                    <p className="transition-colors duration-300 group-hover:text-primary">Level {level} ({hydrationRank.rank})</p>
+                    {/* Display the user's "drops" currency. */}
+                    <p className="flex items-center gap-1 transition-colors duration-300 group-hover:text-accent"><Droplets className="h-4 w-4 text-primary"/>{drops}</p>
+                </div>
+                {/* The progress bar shows how close the user is to the next level. */}
+                <Progress value={(xp / xpToNextLevel) * 100} className="h-3 group-hover:shadow-[0_0_15px] group-hover:shadow-primary/50 transition-shadow duration-300" />
+                 <p className="text-xs text-muted-foreground text-right">{xp} / {xpToNextLevel} XP</p>
+            </div>
+            
+            {/* --- Main Hydration Progress Ring --- */}
+            <div className="flex flex-col justify-center items-center py-4 space-y-4">
+              {/* This is our custom component that visually represents the daily goal progress. */}
+              <ProgressRing progress={progress} waterRemaining={waterRemaining} />
+            </div>
+
+            {/* --- AI Motivational Message --- */}
+            <div className="text-center">
+              <p className="font-semibold flex items-center justify-center gap-2 text-primary"><Bot className="h-5 w-5" /> {motivation.title}</p>
+              <p className="text-sm text-muted-foreground">{motivation.message}</p>
+            </div>
+            
+            {/* --- Quick Stats Panel --- */}
+            <div className="grid grid-cols-3 gap-2 text-center bg-card/50 p-3 rounded-xl">
+                {/* Streak Counter */}
+                <div className="flex flex-col items-center justify-center">
+                    <Flame className="h-7 w-7 text-accent mb-1"/>
+                    <p className="text-lg font-bold">{streak}</p>
+                    <p className="text-xs text-muted-foreground">Day Streak</p>
+                </div>
+                 {/* Bottle Water Level */}
+                 <div className="flex flex-col items-center justify-center">
+                    <div className="relative h-7 w-7">
+                        <Droplets className="h-full w-full text-blue-400" />
+                        {/* We show the percentage of water left in the bottle right on top of the icon. */}
+                        <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-background">{Math.round((bottleLevel / 750) * 100)}%</span>
+                    </div>
+                    <p className="text-lg font-bold">{bottleLevel.toFixed(0)} <span className="text-sm">mL</span></p>
+                    <p className="text-xs text-muted-foreground">Bottle</p>
+                </div>
+                {/* Ambient Temperature */}
+                <div className="flex flex-col items-center justify-center">
+                    <Thermometer className="h-7 w-7 text-orange-400 mb-1"/>
+                    <p className="text-lg font-bold">{temperature.toFixed(1)}<span className="text-sm">°C</span></p>
+                    <p className="text-xs text-muted-foreground">Ambient</p>
+                </div>
+            </div>
+
+            <Separator />
+            
+            {/* --- AI COACHING SECTION --- */}
+            <div>
+              <h2 className="text-lg font-headline font-semibold mb-2 flex items-center gap-2"><Bot className="h-5 w-5 text-primary" /> AI Hydration Coach</h2>
+              {/* Use a conditional (ternary) operator to show a loading message or the AI insight. */}
+              {isLoadingInsight ? (
+                <div className="text-sm text-center text-muted-foreground italic p-4 bg-muted/30 rounded-lg">
+                    <p>{loadingMessage}</p>
+                    <Progress value={Math.random() * 100} className="h-1 mt-3 transition-all duration-1000 ease-linear"/>
+                </div>
+              ) : (
+                <p className="text-sm italic text-muted-foreground">"{insight?.insight}"</p>
+              )}
+            </div>
+            
+            {/* --- Update AI Goal Prompt --- */}
+            <Card className="bg-gradient-to-r from-primary/10 to-accent/10 border-primary/20 hover:border-primary/50 transition-all duration-300">
+                <CardHeader>
+                    <div className="flex items-center gap-3">
+                         <Wand2 className="h-8 w-8 text-primary" />
+                         <div>
+                            <h3 className="font-semibold font-headline">Refine Your Plan?</h3>
+                            <p className="text-xs text-muted-foreground">Your AI goal is based on your profile, activity, history, and even the local temperature. Update your details for a smarter plan.</p>
+                         </div>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <Link href="/profile" passHref>
+                        <Button className="w-full">Update Profile & AI Goal</Button>
+                    </Link>
+                </CardContent>
+            </Card>
+
+
+            <Separator />
+
+
+            {/* --- Weekly Quests Section --- */}
+            <div className="space-y-4">
+                <div>
+                   <h2 className="text-lg font-headline font-semibold mb-2 flex items-center gap-2">
+                        <ShieldCheck className="h-5 w-5 text-primary"/>
+                        Weekly Quests
+                    </h2>
+                    {/* The list of quests is displayed here. */}
+                    <div className="space-y-4 p-4 rounded-lg bg-card/50">
+                        {/* We `map` over the `weeklyQuests` array to create a UI element for each quest. */}
+                        {/* The `key` is important for React to keep track of each item in the list efficiently. */}
+                        {weeklyQuests.map((quest) => (
+                            <div key={quest.id} className="group">
+                                <div className="flex justify-between items-center mb-1">
+                                    <p className="text-sm font-semibold">{quest.title}</p>
+                                    <p className="text-sm font-medium flex items-center gap-1 text-accent transition-transform duration-300 group-hover:scale-110">
+                                        <Droplets className="h-4 w-4" /> +{quest.reward}
+                                    </p>
+                                </div>
+                                <Progress value={(quest.current / quest.goal) * 100} className="h-2" />
+                                <p className="text-xs text-muted-foreground mt-1">{quest.description}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+            
+            {/* --- Manual Sync Button --- */}
+            <Button variant="outline" className="w-full" onClick={handleSync}>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Sync Manually
+            </Button>
+        </div>
+      )}
+
+    </div>
+  );
+}
