@@ -2,18 +2,6 @@
 
 ---
 
-## 🚀 Quick Links
-
-- 📷 [Blender Render (Bottle Design)](./assets/render_bottle.png)
-- 🔧 [Schematic Diagram](./assets/schematic.png)
-- 🧪 [Copper Tape Sensor, Prototype Image](./assets/copper_sensor.png)
-- 📱 [App Walkthrough Video](./assets/app_demo.mp4)
-- 🌐 [Open the NEPHRA App (Demo)](https://9000-firebase-studio-1754815665125.cluster-ikxjzjhlifcwuroomfkjrx437g.cloudworkstations.dev)
-
-> ⚠️ _Note: The app is self-hosted. Please contact us at **+91-99461-41445** or [**Akshay**](https://akshayabraham.vercel.app/) to reactivate hosting before access._
-
----
-
 ## 📑 Table of Contents
 
 1. [Project Overview](#-project-overview)
@@ -333,7 +321,7 @@ This isn’t “8 glasses for everyone.” It’s **precision hydration**.
 
 **Made by**
 
-- [**Akshay K Rooben Abraham**](https://akshayabraham.vercel.app/)
+- **Akshay K Rooben Abraham**[Visit Personal Website](https://akshayabraham.vercel.app/)
 - **Adwaith Krishna U S**
 
 **Mentorship & Guidance**
@@ -344,11 +332,3 @@ This isn’t “8 glasses for everyone.” It’s **precision hydration**.
 **Medical Advice**
 
 - _Mrs. Lally Abraham_, Pediatrician, General Hospital Kottayam
-
-**Other Contributors**
-
-- Hrishikesh Chakyar — _custom instruction in app idea_
-- Arjun Ashok — _ambient temperature integration idea_
-- Nandana Baburaj — _prototype support (bottle for Prototype 1)_
-
----
